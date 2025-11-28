@@ -228,7 +228,10 @@ curl -X POST http://localhost:8080/fhir/Observation \
 
 This project was inspired by:
 - HAPI FHIR HashMapResourceProvider pattern
-- Koppeltaal 2.0 FHIR HAPI Server (`/Users/roland/Documents/Projects/HeadEase/Koppeltaal/Koppeltaal-2.0-FHIR-HAPI-Server`)
+- [Koppeltaal 2.0 FHIR HAPI Server](https://github.com/Koppeltaal/Koppeltaal-2.0-FHIR-HAPI-Server)
 
-The test data (TTL files) comes from the WellData IG project output.
-- On each commit, update the @README.md and @CHANGELOG.md
+The test data comes from the WellData IG project output.
+
+## Development Notes
+
+- On each commit, update the README.md and CHANGELOG.md
