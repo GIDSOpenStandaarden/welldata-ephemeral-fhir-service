@@ -154,12 +154,15 @@ function App() {
       setLoading(true);
       setError(null);
 
+      // Use a shared timestamp for QuestionnaireResponse and all related Observations
+      const timestamp = new Date().toISOString();
+
       // Create and save QuestionnaireResponse (pass full questionnaire for structure)
-      const qrResource = createQuestionnaireResponse(questionnaire, answers);
+      const qrResource = createQuestionnaireResponse(questionnaire, answers, timestamp);
       const savedResponse = await fhirClient.create('QuestionnaireResponse', qrResource);
 
-      // Create and save Observations with derivedFrom reference
-      const observationsToCreate = createObservationsFromAnswers(answers, savedResponse.id);
+      // Create and save Observations with derivedFrom reference and same timestamp
+      const observationsToCreate = createObservationsFromAnswers(answers, savedResponse.id, timestamp);
       for (const obs of observationsToCreate) {
         await fhirClient.create('Observation', obs);
       }

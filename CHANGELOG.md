@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Solid OIDC authentication with dynamic client registration and PKCE
   - Questionnaire rendering with support for grouped items and multiple answer types
   - QuestionnaireResponse submission with linked Observation creation
-  - History view for submitted responses and observations
+  - History view grouped by QuestionnaireResponse with related Observations
+  - Shared timestamp for QuestionnaireResponse and linked Observations
   - Configurable Solid provider URL (supports external providers like solidcommunity.net)
 
 ## [0.1.0] - 2025-11-28

@@ -413,8 +413,27 @@
 
 .history-section h2 {
   color: #333;
-  margin: 0 0 16px 0;
-  font-size: 1.3em;
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.response-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.response-status-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .empty-message {
@@ -423,44 +442,38 @@
   padding: 24px;
 }
 
-.observations-list,
-.responses-list {
-  display: flex;
-  flex-direction: column;
+.observations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 12px;
 }
 
-.observation-card,
-.response-card {
+.observation-card {
   background: #f8f9fa;
   border-radius: 8px;
   padding: 16px;
+  text-align: center;
 }
 
-.observation-header,
-.response-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+.observation-category {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .observation-code {
   font-weight: 600;
   color: #333;
-}
-
-.observation-date,
-.response-date {
   font-size: 14px;
-  color: #666;
+  margin-bottom: 8px;
 }
 
 .observation-value {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #667eea;
-  margin-bottom: 4px;
 }
 
 .observation-status,

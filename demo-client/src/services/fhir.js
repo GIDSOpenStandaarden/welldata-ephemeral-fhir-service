@@ -183,8 +183,8 @@ const OBSERVATION_MAPPINGS = {
 };
 
 // Map questionnaire answers to FHIR Observations
-export const createObservationsFromAnswers = (answers, questionnaireResponseId) => {
-  const now = new Date().toISOString();
+export const createObservationsFromAnswers = (answers, questionnaireResponseId, timestamp = null) => {
+  const effectiveDateTime = timestamp || new Date().toISOString();
   const observations = [];
 
   for (const [linkId, value] of Object.entries(answers)) {
@@ -204,7 +204,7 @@ export const createObservationsFromAnswers = (answers, questionnaireResponseId) 
       code: {
         coding: [mapping.code]
       },
-      effectiveDateTime: now,
+      effectiveDateTime: effectiveDateTime,
       derivedFrom: [{
         reference: `QuestionnaireResponse/${questionnaireResponseId}`
       }]
@@ -234,7 +234,8 @@ export const createObservationsFromAnswers = (answers, questionnaireResponseId) 
 };
 
 // Create a QuestionnaireResponse from answers with proper structure
-export const createQuestionnaireResponse = (questionnaire, answers) => {
+export const createQuestionnaireResponse = (questionnaire, answers, timestamp = null) => {
+  const authored = timestamp || new Date().toISOString();
   const buildItems = (questionnaireItems) => {
     const responseItems = [];
 
@@ -283,7 +284,7 @@ export const createQuestionnaireResponse = (questionnaire, answers) => {
     },
     questionnaire: questionnaire.url || `Questionnaire/${questionnaire.id}`,
     status: 'completed',
-    authored: new Date().toISOString(),
+    authored: authored,
     item: buildItems(questionnaire.item || [])
   };
 };

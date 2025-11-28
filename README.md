@@ -58,8 +58,8 @@ The demo client is a React application that demonstrates the WellData workflow:
 
 1. **Login with Solid** - Authenticate using Solid OIDC (default: local Solid pod)
 2. **Fill out a health questionnaire** - Answer questions about vitals, wellbeing, lifestyle
-3. **Submit responses** - Creates a QuestionnaireResponse and linked Observations
-4. **View history** - See submitted responses and observations
+3. **Submit responses** - Creates a QuestionnaireResponse and linked Observations (with shared timestamp)
+4. **View history** - See responses grouped with their related observations
 
 ### Using an External Solid Provider
 
