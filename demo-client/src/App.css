@@ -136,6 +136,15 @@
   margin: 8px 0 0 0;
 }
 
+.provider-note {
+  font-size: 12px;
+  color: #e67e22;
+  margin: 8px 0 0 0;
+  padding: 8px;
+  background: #fef5e7;
+  border-radius: 4px;
+}
+
 /* Header */
 .app-header {
   background: rgba(255, 255, 255, 0.95);

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated WellData Implementation Guide package to v0.1.1
 - Demo client now uses health-check-1-0 questionnaire instead of zipster
 - Added Docker Compose `develop.watch` for automatic rebuild on file changes
+- Demo client uses OIDC discovery for endpoint URLs
+- Demo client uses Client ID Document for external Solid providers (Solid-OIDC compliant)
 
 ### Added
 

@@ -62,8 +62,14 @@ export const LoginScreen = ({ onLogin, loading, error }) => {
                 </button>
               )}
               <p className="provider-examples">
-                Examples: solidcommunity.net, inrupt.net, use.id
+                Examples: solidcommunity.net, login.inrupt.com
               </p>
+              {isCustomProvider && (
+                <p className="provider-note">
+                  Note: External providers require this app to be publicly deployed
+                  so they can verify the client identity.
+                </p>
+              )}
             </div>
           )}
 

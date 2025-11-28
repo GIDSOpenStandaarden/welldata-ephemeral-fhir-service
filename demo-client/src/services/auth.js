@@ -4,6 +4,9 @@ const DEFAULT_SOLID_PROVIDER = 'http://localhost:3000';
 const REDIRECT_URI = window.location.origin + '/';
 const CLIENT_NAME = 'WellData Wellness App';
 
+// Client ID Document URL - used for external Solid providers that don't support open dynamic registration
+const CLIENT_ID_DOCUMENT = window.location.origin + '/clientid.jsonld';
+
 // Storage keys
 const STORAGE_KEY_CLIENT = 'welldata_oidc_client';
 const STORAGE_KEY_STATE = 'welldata_oidc_state';
@@ -17,19 +20,60 @@ export const getSolidProvider = () => {
   return localStorage.getItem(STORAGE_KEY_PROVIDER) || DEFAULT_SOLID_PROVIDER;
 };
 
+// Check if provider supports dynamic registration
+// We assume same-origin providers (e.g., bundled CSS) support it, external providers don't
+const supportsDynamicRegistration = () => {
+  try {
+    const providerUrl = new URL(getSolidProvider());
+    const appUrl = new URL(window.location.origin);
+    // Same hostname means bundled provider (e.g., docker-compose setup)
+    return providerUrl.hostname === appUrl.hostname;
+  } catch {
+    return false;
+  }
+};
+
+// Cache for OIDC configuration
+let oidcConfigCache = null;
+let oidcConfigProvider = null;
+
+// Discover OIDC configuration from provider
+const getOidcConfig = async () => {
+  const provider = getSolidProvider();
+
+  // Return cached config if same provider
+  if (oidcConfigCache && oidcConfigProvider === provider) {
+    return oidcConfigCache;
+  }
+
+  console.log('Fetching OIDC configuration from:', provider);
+  const response = await fetch(`${provider}/.well-known/openid-configuration`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch OIDC configuration: ${response.status}`);
+  }
+
+  oidcConfigCache = await response.json();
+  oidcConfigProvider = provider;
+  return oidcConfigCache;
+};
+
 // Set Solid provider URL
 export const setSolidProvider = (url) => {
   // Normalize URL (remove trailing slash)
   const normalized = url.replace(/\/+$/, '');
   localStorage.setItem(STORAGE_KEY_PROVIDER, normalized);
-  // Clear existing client registration when provider changes
+  // Clear existing client registration and OIDC config cache when provider changes
   localStorage.removeItem(STORAGE_KEY_CLIENT);
+  oidcConfigCache = null;
+  oidcConfigProvider = null;
 };
 
 // Reset to default provider
 export const resetSolidProvider = () => {
   localStorage.removeItem(STORAGE_KEY_PROVIDER);
   localStorage.removeItem(STORAGE_KEY_CLIENT);
+  oidcConfigCache = null;
+  oidcConfigProvider = null;
 };
 
 export const DEFAULT_PROVIDER_URL = DEFAULT_SOLID_PROVIDER;
@@ -70,8 +114,19 @@ export const parseJwt = (token) => {
   }
 };
 
-// Register client dynamically with Solid server
-const registerClient = async (forceNew = false) => {
+// Get or register client
+// - For same-origin providers (bundled CSS): use dynamic registration
+// - For external providers: use Client ID Document
+const getClient = async (forceNew = false) => {
+  // For external providers, always use the Client ID Document
+  if (!supportsDynamicRegistration()) {
+    console.log('Using Client ID Document for external provider:', CLIENT_ID_DOCUMENT);
+    const client = { client_id: CLIENT_ID_DOCUMENT };
+    localStorage.setItem(STORAGE_KEY_CLIENT, JSON.stringify(client));
+    return client;
+  }
+
+  // For local provider, use dynamic registration
   if (!forceNew) {
     const stored = localStorage.getItem(STORAGE_KEY_CLIENT);
     if (stored) {
@@ -136,8 +191,8 @@ const exchangeCodeForTokens = async (code) => {
     code_verifier: verifier
   });
 
-  const provider = getSolidProvider();
-  const response = await fetch(`${provider}/.oidc/token`, {
+  const oidcConfig = await getOidcConfig();
+  const response = await fetch(oidcConfig.token_endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString()
@@ -164,7 +219,7 @@ const exchangeCodeForTokens = async (code) => {
 
 // Start login flow - redirect to Solid IDP
 export const login = async () => {
-  const client = await registerClient(true);
+  const client = await getClient(true);
 
   const verifier = generateRandomString(64);
   const challenge = await generateCodeChallenge(verifier);
@@ -173,8 +228,8 @@ export const login = async () => {
   localStorage.setItem(STORAGE_KEY_STATE, state);
   localStorage.setItem(STORAGE_KEY_VERIFIER, verifier);
 
-  const provider = getSolidProvider();
-  const authUrl = new URL(`${provider}/.oidc/auth`);
+  const oidcConfig = await getOidcConfig();
+  const authUrl = new URL(oidcConfig.authorization_endpoint);
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('client_id', client.client_id);
   authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
