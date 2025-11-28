@@ -172,7 +172,8 @@ jobs:
           if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           else
-            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+            # Use short SHA (7 chars) to match docker/metadata-action's type=sha,prefix= format
+            echo "tag=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
           fi
 
       - name: Deploy with Helm
