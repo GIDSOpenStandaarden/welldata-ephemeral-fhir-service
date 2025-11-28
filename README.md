@@ -238,6 +238,38 @@ src/main/java/nl/gidsopenstandaarden/welldata/fhir/
     └── SessionManager.java             # Session lifecycle management
 ```
 
+## Kubernetes Deployment
+
+A Helm chart is provided for deploying to Kubernetes clusters.
+
+### Quick Start
+
+```bash
+helm install welldata-ephemeral-fhir ./chart/welldata-ephemeral-fhir-service
+```
+
+### With Custom Configuration
+
+```bash
+helm install welldata-ephemeral-fhir ./chart/welldata-ephemeral-fhir-service \
+  --set demoClient.defaultSolidProvider=https://solidcommunity.net \
+  --set demoClient.service.type=LoadBalancer
+```
+
+### Configuration Options
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `fhirServer.replicaCount` | Number of FHIR server replicas | `1` |
+| `fhirServer.image.repository` | FHIR server image | `gidsopenstandaarden/welldata-ephemeral-fhir-service` |
+| `fhirServer.image.tag` | FHIR server image tag | `latest` |
+| `demoClient.enabled` | Enable demo client | `true` |
+| `demoClient.defaultSolidProvider` | Default Solid provider URL | `https://solidcommunity.net` |
+| `demoClient.service.type` | Demo client service type | `ClusterIP` |
+| `demoClient.ingress.enabled` | Enable ingress for demo client | `false` |
+
+See `chart/welldata-ephemeral-fhir-service/values.yaml` for all available options.
+
 ## Related Projects
 
 - [WellData Implementation Guide](https://gidsopenstandaarden.github.io/welldata-implementation-guide/) - FHIR profiles and specifications

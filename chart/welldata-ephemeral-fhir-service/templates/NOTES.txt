@@ -1,0 +1,49 @@
+WellData Ephemeral FHIR Service has been deployed!
+
+=== FHIR Server ===
+{{- if .Values.fhirServer.ingress.enabled }}
+Access the FHIR server at:
+{{- range $host := .Values.fhirServer.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.fhirServer.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else }}
+The FHIR server is available within the cluster at:
+  http://{{ include "welldata.fhirServer.name" . }}:{{ .Values.fhirServer.service.port }}
+
+To access it locally, run:
+  kubectl port-forward svc/{{ include "welldata.fhirServer.name" . }} 8080:{{ .Values.fhirServer.service.port }}
+
+Then access: http://localhost:8080/fhir/metadata
+{{- end }}
+
+{{- if .Values.demoClient.enabled }}
+
+=== Demo Client ===
+{{- if .Values.demoClient.ingress.enabled }}
+Access the demo client at:
+{{- range $host := .Values.demoClient.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.demoClient.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else }}
+The demo client is available within the cluster at:
+  http://{{ include "welldata.demoClient.name" . }}:{{ .Values.demoClient.service.port }}
+
+To access it locally, run:
+  kubectl port-forward svc/{{ include "welldata.demoClient.name" . }} 3000:{{ .Values.demoClient.service.port }}
+
+Then access: http://localhost:3000
+{{- end }}
+{{- end }}
+
+=== Solid Authentication ===
+Default Solid provider: {{ .Values.solid.providerUrl }}
+
+Users can log in with their existing Solid identity from {{ .Values.solid.providerUrl }}
+or choose a different Solid provider in the demo client.
+
+For more information, visit:
+  https://gidsopenstandaarden.github.io/welldata-implementation-guide/

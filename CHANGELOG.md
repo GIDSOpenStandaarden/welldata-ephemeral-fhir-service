@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Helm chart for Kubernetes deployment (`chart/welldata-ephemeral-fhir-service/`)
+  - FHIR server and demo client deployments
+  - Configurable Solid provider URL via environment variable
+  - Ingress support for both services
+  - Uses solidcommunity.net as default Solid provider
+- Demo client production Dockerfile with nginx
+  - Dynamic `/config.js` endpoint for runtime configuration
+  - Dynamic `/clientid.jsonld` for Solid-OIDC Client ID Document
+  - Environment variable substitution at container startup
+  - Proxy to FHIR backend via `/fhir/` path
+
 ### Changed
 
 - Updated WellData Implementation Guide package to v0.1.1
@@ -15,7 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Demo client uses OIDC discovery for endpoint URLs
 - Demo client serves dynamic Client ID Document at `/clientid.jsonld` for external Solid providers
   - Automatically adapts to deployment URL (works on localhost, ngrok, production, etc.)
+  - Respects X-Forwarded-Proto and X-Forwarded-Host headers for reverse proxy setups
   - Solid-OIDC compliant for providers like solidcommunity.net
+- Demo client default Solid provider is now configurable via `DEFAULT_SOLID_PROVIDER` environment variable
 
 ### Added
 

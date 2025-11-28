@@ -1,6 +1,7 @@
 // Solid OIDC Authentication Service
 
-const DEFAULT_SOLID_PROVIDER = 'http://localhost:3000';
+// Get default provider from runtime config (set in /config.js) or fallback
+const DEFAULT_SOLID_PROVIDER = window.WELLDATA_CONFIG?.DEFAULT_SOLID_PROVIDER || 'http://localhost:3000';
 const REDIRECT_URI = window.location.origin + '/';
 const CLIENT_NAME = 'WellData Wellness App';
 

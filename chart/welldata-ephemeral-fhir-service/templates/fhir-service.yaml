@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "welldata.fhirServer.name" . }}
+  labels:
+    {{- include "welldata.fhirServer.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.fhirServer.service.type }}
+  ports:
+    - port: {{ .Values.fhirServer.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "welldata.fhirServer.selectorLabels" . | nindent 4 }}

@@ -7,13 +7,13 @@ export const HomeScreen = ({ webId, onLogout, onStartQuestionnaire, onViewHistor
     <main className="main-content">
       <div className="welcome-section">
         <h2>Welcome!</h2>
-        <p>Track your health and wellbeing with the Zipster questionnaire.</p>
+        <p>Track your health and wellbeing with the Health Check questionnaire.</p>
       </div>
       <div className="action-cards">
         <div className="action-card" onClick={onStartQuestionnaire}>
           <div className="card-icon">📋</div>
           <h3>Take Questionnaire</h3>
-          <p>Answer the Zipster wellbeing assessment</p>
+          <p>Answer the Health Check wellbeing assessment</p>
         </div>
         <div className="action-card" onClick={onViewHistory}>
           <div className="card-icon">📊</div>

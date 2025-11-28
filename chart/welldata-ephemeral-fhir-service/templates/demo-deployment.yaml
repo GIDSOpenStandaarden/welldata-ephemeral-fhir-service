@@ -1,0 +1,70 @@
+{{- if .Values.demoClient.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "welldata.demoClient.name" . }}
+  labels:
+    {{- include "welldata.demoClient.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.demoClient.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "welldata.demoClient.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "welldata.demoClient.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "welldata.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: demo-client
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.demoClient.image.repository }}:{{ .Values.demoClient.image.tag }}"
+          imagePullPolicy: {{ .Values.demoClient.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: FHIR_BACKEND_URL
+              value: {{ .Values.demoClient.fhirServerUrl | default (include "welldata.fhirServer.url" .) | quote }}
+            - name: DEFAULT_SOLID_PROVIDER
+              value: {{ .Values.demoClient.defaultSolidProvider | quote }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.demoClient.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

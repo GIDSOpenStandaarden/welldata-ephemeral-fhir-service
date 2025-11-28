@@ -1,0 +1,17 @@
+{{- if .Values.demoClient.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "welldata.demoClient.name" . }}
+  labels:
+    {{- include "welldata.demoClient.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.demoClient.service.type }}
+  ports:
+    - port: {{ .Values.demoClient.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "welldata.demoClient.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: welldata-ephemeral-fhir
+description: WellData Ephemeral FHIR Service - Session-scoped FHIR R4 storage with Solid OIDC authentication
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - fhir
+  - welldata
+  - solid
+  - healthcare
+  - oidc
+home: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide
+sources:
+  - https://github.com/GIDSOpenStandaarden/welldata-ephemeral-fhir-service
+maintainers:
+  - name: GIDS Open Standaarden
+    url: https://www.gidsopenstandaarden.org

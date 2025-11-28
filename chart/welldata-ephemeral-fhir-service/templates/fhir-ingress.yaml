@@ -1,0 +1,41 @@
+{{- if .Values.fhirServer.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "welldata.fhirServer.name" . }}
+  labels:
+    {{- include "welldata.fhirServer.labels" . | nindent 4 }}
+  {{- with .Values.fhirServer.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.fhirServer.ingress.className }}
+  ingressClassName: {{ .Values.fhirServer.ingress.className }}
+  {{- end }}
+  {{- if .Values.fhirServer.ingress.tls }}
+  tls:
+    {{- range .Values.fhirServer.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.fhirServer.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "welldata.fhirServer.name" $ }}
+                port:
+                  number: {{ $.Values.fhirServer.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
