@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 550">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+    <linearGradient id="lightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#764ba2" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="podGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#764ba2"/>
+      <stop offset="100%" stop-color="#5a3a7e"/>
+    </linearGradient>
+    
+    <!-- Drop shadow filter -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#764ba2" flood-opacity="0.15"/>
+    </filter>
+    <filter id="smallShadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#764ba2" flood-opacity="0.2"/>
+    </filter>
+    
+    <!-- App icon symbol -->
+    <symbol id="appIcon" viewBox="0 0 60 60">
+      <rect x="4" y="4" width="52" height="52" rx="12" fill="url(#primaryGradient)"/>
+      <rect x="12" y="12" width="36" height="36" rx="6" fill="white" opacity="0.9"/>
+      <rect x="18" y="18" width="10" height="10" rx="2" fill="#667eea"/>
+      <rect x="32" y="18" width="10" height="10" rx="2" fill="#764ba2"/>
+      <rect x="18" y="32" width="10" height="10" rx="2" fill="#764ba2"/>
+      <rect x="32" y="32" width="10" height="10" rx="2" fill="#667eea"/>
+    </symbol>
+    
+    <!-- Folder icon symbol -->
+    <symbol id="folderIcon" viewBox="0 0 24 20">
+      <path d="M2 4C2 2.9 2.9 2 4 2H9L11 4H20C21.1 4 22 4.9 22 6V16C22 17.1 21.1 18 20 18H4C2.9 18 2 17.1 2 16V4Z" fill="white" opacity="0.9"/>
+      <path d="M2 6H22V16C22 17.1 21.1 18 20 18H4C2.9 18 2 17.1 2 16V6Z" fill="white"/>
+    </symbol>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="550" fill="#fafbff"/>
+  
+  <!-- ==================== TOP: APP ICONS ==================== -->
+  
+  <!-- App A -->
+  <g transform="translate(200, 30)" filter="url(#smallShadow)">
+    <use href="#appIcon" width="60" height="60"/>
+  </g>
+  <text x="230" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">App A</text>
+  
+  <!-- App B -->
+  <g transform="translate(370, 30)" filter="url(#smallShadow)">
+    <use href="#appIcon" width="60" height="60"/>
+  </g>
+  <text x="400" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">App B</text>
+  
+  <!-- App C -->
+  <g transform="translate(540, 30)" filter="url(#smallShadow)">
+    <use href="#appIcon" width="60" height="60"/>
+  </g>
+  <text x="570" y="108" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">App C</text>
+  
+  <!-- ==================== ARROWS: APPS TO SERVICE ==================== -->
+  
+  <!-- Arrow from App A -->
+  <path d="M230 95 L230 140" stroke="#667eea" stroke-width="2" fill="none" stroke-dasharray="4,3" opacity="0.6"/>
+  <polygon points="230,148 226,140 234,140" fill="#667eea" opacity="0.8"/>
+  
+  <!-- Arrow from App B -->
+  <path d="M400 95 L400 140" stroke="#667eea" stroke-width="2" fill="none" stroke-dasharray="4,3" opacity="0.6"/>
+  <polygon points="400,148 396,140 404,140" fill="#667eea" opacity="0.8"/>
+  
+  <!-- Arrow from App C -->
+  <path d="M570 95 L570 140" stroke="#667eea" stroke-width="2" fill="none" stroke-dasharray="4,3" opacity="0.6"/>
+  <polygon points="570,148 566,140 574,140" fill="#667eea" opacity="0.8"/>
+  
+  <!-- FHIR JSON label -->
+  <rect x="340" y="118" width="120" height="22" rx="11" fill="white" stroke="#667eea" stroke-width="1.5"/>
+  <text x="400" y="133" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="500" fill="#667eea" text-anchor="middle">FHIR JSON</text>
+  
+  <!-- ==================== MIDDLE: EPHEMERAL FHIR SERVICE ==================== -->
+  
+  <!-- Main service container -->
+  <rect x="100" y="155" width="600" height="195" rx="16" fill="white" filter="url(#shadow)"/>
+  <rect x="100" y="155" width="600" height="195" rx="16" fill="url(#lightGradient)" stroke="url(#primaryGradient)" stroke-width="2"/>
+  
+  <!-- Service header bar -->
+  <rect x="100" y="155" width="600" height="40" rx="16" fill="url(#primaryGradient)"/>
+  <rect x="100" y="175" width="600" height="20" fill="url(#primaryGradient)"/>
+  
+  <!-- Service title -->
+  <text x="400" y="181" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="700" fill="white" text-anchor="middle">Ephemeral FHIR Service</text>
+  
+  <!-- Component: FHIR REST API -->
+  <g transform="translate(130, 215)">
+    <rect width="150" height="70" rx="10" fill="white" filter="url(#smallShadow)"/>
+    <rect width="150" height="70" rx="10" fill="white" stroke="#667eea" stroke-width="1.5"/>
+    <text x="75" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">FHIR REST API</text>
+    <text x="75" y="50" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#718096" text-anchor="middle">GET, POST, PUT, DELETE</text>
+    <!-- API icon -->
+    <circle cx="75" cy="58" r="0" fill="#667eea"/>
+  </g>
+  
+  <!-- Component: In-Memory Store -->
+  <g transform="translate(325, 215)">
+    <rect width="150" height="70" rx="10" fill="white" filter="url(#smallShadow)"/>
+    <rect width="150" height="70" rx="10" fill="white" stroke="#764ba2" stroke-width="1.5"/>
+    <text x="75" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">In-Memory Store</text>
+    <text x="75" y="50" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#718096" text-anchor="middle">FHIR Resources Cache</text>
+    <!-- Memory icon dots -->
+    <g transform="translate(55, 54)">
+      <circle cx="0" cy="0" r="3" fill="#764ba2" opacity="0.4"/>
+      <circle cx="12" cy="0" r="3" fill="#764ba2" opacity="0.6"/>
+      <circle cx="24" cy="0" r="3" fill="#764ba2" opacity="0.8"/>
+      <circle cx="36" cy="0" r="3" fill="#764ba2"/>
+    </g>
+  </g>
+  
+  <!-- Component: RDF Transformer -->
+  <g transform="translate(520, 215)">
+    <rect width="150" height="70" rx="10" fill="white" filter="url(#smallShadow)"/>
+    <rect width="150" height="70" rx="10" fill="white" stroke="#667eea" stroke-width="1.5"/>
+    <text x="75" y="30" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#4a5568" text-anchor="middle">RDF Transformer</text>
+    <text x="75" y="50" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#718096" text-anchor="middle">FHIR ↔ RDF/Turtle</text>
+    <!-- Transform icon -->
+    <g transform="translate(60, 54)">
+      <rect x="0" y="-4" width="12" height="8" rx="2" fill="#667eea" opacity="0.5"/>
+      <path d="M16 0 L22 0" stroke="#764ba2" stroke-width="1.5"/>
+      <polygon points="24,0 20,-3 20,3" fill="#764ba2"/>
+      <circle cx="32" cy="0" r="6" fill="none" stroke="#764ba2" stroke-width="1.5"/>
+    </g>
+  </g>
+  
+  <!-- Internal arrows -->
+  <!-- API to Store -->
+  <path d="M285 250 L320 250" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <polygon points="322,250 316,246 316,254" fill="#667eea"/>
+  
+  <!-- Store to Transformer -->
+  <path d="M480 250 L515 250" stroke="#764ba2" stroke-width="2"/>
+  <polygon points="517,250 511,246 511,254" fill="#764ba2"/>
+  
+  <!-- Bidirectional indicator for Store-Transformer -->
+  <path d="M515 256 L480 256" stroke="#764ba2" stroke-width="2"/>
+  <polygon points="478,256 484,252 484,260" fill="#764ba2"/>
+  
+  <!-- ==================== ARROWS: SERVICE TO POD ==================== -->
+  
+  <!-- Down arrow (Persist on write) -->
+  <path d="M340 355 L340 395" stroke="#764ba2" stroke-width="2.5"/>
+  <polygon points="340,403 334,393 346,393" fill="#764ba2"/>
+  
+  <!-- Up arrow (Load on login) -->
+  <path d="M460 395 L460 355" stroke="#667eea" stroke-width="2.5"/>
+  <polygon points="460,350 454,360 466,360" fill="#667eea"/>
+  
+  <!-- Labels for arrows -->
+  <rect x="240" y="365" width="100" height="22" rx="11" fill="white" stroke="#764ba2" stroke-width="1.5"/>
+  <text x="290" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="#764ba2" text-anchor="middle">Persist on write</text>
+  
+  <rect x="460" y="365" width="100" height="22" rx="11" fill="white" stroke="#667eea" stroke-width="1.5"/>
+  <text x="510" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="#667eea" text-anchor="middle">Load on login</text>
+  
+  <!-- ==================== BOTTOM: SOLID POD ==================== -->
+  
+  <!-- Pod cloud/cylinder shape -->
+  <g filter="url(#shadow)">
+    <!-- Cylinder body -->
+    <path d="M180 440 L180 490 Q180 510 400 510 Q620 510 620 490 L620 440" fill="url(#podGradient)"/>
+    <!-- Cylinder top ellipse -->
+    <ellipse cx="400" cy="440" rx="220" ry="25" fill="url(#primaryGradient)"/>
+    <!-- Highlight on top -->
+    <ellipse cx="400" cy="438" rx="200" ry="18" fill="white" opacity="0.15"/>
+  </g>
+  
+  <!-- Pod label -->
+  <text x="400" y="446" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="white" text-anchor="middle">Solid Pod (RDF/Turtle)</text>
+  
+  <!-- Folder icons with labels -->
+  <!-- Patient folder -->
+  <g transform="translate(240, 462)">
+    <use href="#folderIcon" width="28" height="24"/>
+    <text x="14" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="white" text-anchor="middle">Patient/</text>
+  </g>
+  
+  <!-- Observation folder -->
+  <g transform="translate(386, 462)">
+    <use href="#folderIcon" width="28" height="24"/>
+    <text x="14" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="white" text-anchor="middle">Observation/</text>
+  </g>
+  
+  <!-- QuestionnaireResponse folder -->
+  <g transform="translate(520, 462)">
+    <use href="#folderIcon" width="28" height="24"/>
+    <text x="14" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="white" text-anchor="middle" style="font-size: 9px">Questionnaire</text>
+    <text x="14" y="48" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="500" fill="white" text-anchor="middle" style="font-size: 9px">Response/</text>
+  </g>
+  
+  <!-- User ownership indicator -->
+  <g transform="translate(140, 470)">
+    <circle cx="12" cy="12" r="12" fill="white" opacity="0.2"/>
+    <circle cx="12" cy="9" r="5" fill="white" opacity="0.9"/>
+    <path d="M4 22 Q4 15 12 15 Q20 15 20 22" fill="white" opacity="0.9"/>
+  </g>
+  <text x="168" y="487" font-family="system-ui, -apple-system, sans-serif" font-size="9" fill="white" opacity="0.9">User's Personal Data</text>
+  
+</svg>
