@@ -11,12 +11,16 @@ export const HomeScreen = ({ webId, onLogout, onStartQuestionnaire, onViewHistor
       </div>
       <div className="action-cards">
         <div className="action-card" onClick={onStartQuestionnaire}>
-          <div className="card-icon">📋</div>
+          <div className="card-icon">
+            <img src="/icon-take-questionnaire.svg" alt="Take Questionnaire" width="64" height="64" />
+          </div>
           <h3>Take Questionnaire</h3>
           <p>Answer the Health Check wellbeing assessment</p>
         </div>
         <div className="action-card" onClick={onViewHistory}>
-          <div className="card-icon">📊</div>
+          <div className="card-icon">
+            <img src="/icon-view-history.svg" alt="View History" width="64" height="64" />
+          </div>
           <h3>View History</h3>
           <p>See your past observations and responses</p>
         </div>

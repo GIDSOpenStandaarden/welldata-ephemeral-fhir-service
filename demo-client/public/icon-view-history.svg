@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#764ba2"/>
+      <stop offset="100%" stop-color="#667eea"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background rounded square -->
+  <rect x="4" y="4" width="56" height="56" rx="12" ry="12" fill="url(#primaryGradient)"/>
+  
+  <!-- Inner white card -->
+  <rect x="8" y="8" width="48" height="48" rx="8" ry="8" fill="#FFFFFF"/>
+  
+  <!-- Chart background -->
+  <rect x="12" y="16" width="40" height="28" rx="4" fill="#F3F0FF"/>
+  
+  <!-- Grid lines (subtle) -->
+  <line x1="12" y1="24" x2="52" y2="24" stroke="#E8EAF6" stroke-width="1"/>
+  <line x1="12" y1="32" x2="52" y2="32" stroke="#E8EAF6" stroke-width="1"/>
+  <line x1="12" y1="40" x2="52" y2="40" stroke="#E8EAF6" stroke-width="1"/>
+  
+  <!-- Upward trend line (progress) -->
+  <polyline points="16,40 24,36 32,38 40,28 48,20" stroke="#667eea" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Data points -->
+  <circle cx="16" cy="40" r="3" fill="#764ba2"/>
+  <circle cx="24" cy="36" r="3" fill="#764ba2"/>
+  <circle cx="32" cy="38" r="3" fill="#764ba2"/>
+  <circle cx="40" cy="28" r="3" fill="#764ba2"/>
+  <circle cx="48" cy="20" r="4" fill="#667eea"/>
+  
+  <!-- Success indicator on latest point -->
+  <path d="M45 20 L47 22 L51 17" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Clock/history indicator -->
+  <circle cx="50" cy="50" r="10" fill="url(#accentGradient)"/>
+  <circle cx="50" cy="50" r="7" fill="#FFFFFF"/>
+  <line x1="50" y1="50" x2="50" y2="45" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="50" x2="54" y2="52" stroke="#764ba2" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="50" cy="50" r="1.5" fill="#764ba2"/>
+</svg>

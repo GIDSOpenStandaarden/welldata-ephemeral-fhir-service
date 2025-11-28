@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Clipboard body -->
+  <rect x="10" y="12" width="44" height="48" rx="4" ry="4" fill="url(#primaryGradient)"/>
+  <!-- Clipboard clip -->
+  <rect x="22" y="6" width="20" height="10" rx="3" ry="3" fill="#764ba2"/>
+  <circle cx="32" cy="11" r="3" fill="#FFFFFF" opacity="0.4"/>
+  <!-- Paper area -->
+  <rect x="14" y="20" width="36" height="36" rx="2" ry="2" fill="#FFFFFF"/>
+  
+  <!-- Checklist item 1 - completed -->
+  <circle cx="21" cy="28" r="4" fill="#667eea"/>
+  <path d="M18.5 28 L20 29.5 L23.5 25.5" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="28" y="26" width="18" height="4" rx="2" fill="#E8EAF6"/>
+  
+  <!-- Checklist item 2 - completed -->
+  <circle cx="21" cy="40" r="4" fill="#667eea"/>
+  <path d="M18.5 40 L20 41.5 L23.5 37.5" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="28" y="38" width="14" height="4" rx="2" fill="#E8EAF6"/>
+  
+  <!-- Checklist item 3 - pending -->
+  <circle cx="21" cy="52" r="4" fill="#FFFFFF" stroke="#667eea" stroke-width="1.5"/>
+  <rect x="28" y="50" width="16" height="4" rx="2" fill="#E8EAF6"/>
+  
+  <!-- Heart wellness accent -->
+  <path d="M48 46 C48 42 44 39 40 42 C36 39 32 42 32 46 C32 52 40 58 40 58 C40 58 48 52 48 46Z" fill="#764ba2" opacity="0.9"/>
+</svg>
