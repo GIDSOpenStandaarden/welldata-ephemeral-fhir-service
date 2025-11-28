@@ -13,7 +13,7 @@ welldata:
     url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.1/welldata-0.1.1.tgz
   solid:
     enabled: false  # Set to true to enable Solid pod integration
-    pod-base-url: http://localhost:3000
+    # Pod URL is automatically derived from the user's WebID (sub claim in JWT)
     fhir-container-path: /weare/fhir
 
 logging:

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import nl.gidsopenstandaarden.welldata.fhir.context.AccessTokenContext;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -45,9 +47,6 @@ public class SolidPodClient {
 
     @Value("${welldata.solid.enabled:false}")
     private boolean solidEnabled;
-
-    @Value("${welldata.solid.pod-base-url:http://localhost:3000}")
-    private String podBaseUrl;
 
     @Value("${welldata.solid.fhir-container-path:/weare/fhir}")
     private String fhirContainerPath;
@@ -182,6 +181,19 @@ public class SolidPodClient {
 
         try {
             String turtle = convertFhirToTurtle(resource);
+            if (log.isDebugEnabled()) {
+                log.debug("Turtle content for {} {} ({} bytes):\n{}", resourceType, resourceId, turtle.length(), turtle);
+            }
+
+            // Validate the Turtle syntax before sending
+            try {
+                Model model = ModelFactory.createDefaultModel();
+                model.read(new ByteArrayInputStream(turtle.getBytes(StandardCharsets.UTF_8)), null, "TURTLE");
+                log.debug("Turtle validation passed for {} {}", resourceType, resourceId);
+            } catch (Exception e) {
+                log.error("Invalid Turtle generated for {} {}: {}\nContent:\n{}", resourceType, resourceId, e.getMessage(), turtle);
+                throw new RuntimeException("Invalid Turtle generated: " + e.getMessage(), e);
+            }
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(resourceUrl))
@@ -245,13 +257,20 @@ public class SolidPodClient {
 
     /**
      * Ensures the container structure exists in the pod.
+     * Uses the WebID from AccessTokenContext to determine the pod URL.
      */
     public void ensureContainerStructure(String accessToken) {
         if (!solidEnabled) {
             return;
         }
 
-        log.info("Ensuring pod container structure exists...");
+        String podBaseUrl = getPodBaseUrl();
+        if (podBaseUrl == null) {
+            log.warn("Cannot ensure container structure - no WebID available");
+            return;
+        }
+
+        log.info("Ensuring pod container structure exists at {}...", podBaseUrl);
 
         try {
             // Create /weare/
@@ -260,8 +279,8 @@ public class SolidPodClient {
             // Create /weare/fhir/
             createContainerIfNotExists(podBaseUrl + fhirContainerPath + "/", "FHIR Resources", accessToken);
 
-            // Create resource type containers
-            for (String resourceType : List.of("Patient", "Observation", "Questionnaire", "QuestionnaireResponse")) {
+            // Create resource type containers (excluding Questionnaire as it's served locally)
+            for (String resourceType : List.of("Patient", "Observation", "QuestionnaireResponse")) {
                 createContainerIfNotExists(buildContainerUrl(resourceType), resourceType + " Resources", accessToken);
             }
 
@@ -309,7 +328,39 @@ public class SolidPodClient {
         }
     }
 
+    /**
+     * Derives the pod base URL from the user's WebID.
+     * WebID format: https://pod-host/profile/card#me -> pod URL: https://pod-host
+     *
+     * @return The pod base URL, or null if no WebID is available
+     */
+    private String getPodBaseUrl() {
+        AccessTokenContext context = AccessTokenContext.get();
+        if (context == null || context.getSubject() == null) {
+            log.warn("No access token context or subject (WebID) available");
+            return null;
+        }
+
+        String webId = context.getSubject();
+        try {
+            URI webIdUri = URI.create(webId);
+            String podBaseUrl = webIdUri.getScheme() + "://" + webIdUri.getHost();
+            if (webIdUri.getPort() != -1) {
+                podBaseUrl += ":" + webIdUri.getPort();
+            }
+            log.debug("Derived pod base URL {} from WebID {}", podBaseUrl, webId);
+            return podBaseUrl;
+        } catch (Exception e) {
+            log.error("Failed to parse WebID {}: {}", webId, e.getMessage());
+            return null;
+        }
+    }
+
     private String buildContainerUrl(String resourceType) {
+        String podBaseUrl = getPodBaseUrl();
+        if (podBaseUrl == null) {
+            throw new IllegalStateException("Cannot determine pod URL - no WebID available in access token");
+        }
         return podBaseUrl + fhirContainerPath + "/" + resourceType + "/";
     }
 

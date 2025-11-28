@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Solid pod URL is now automatically derived from user's WebID (sub claim in JWT)
+  - No longer requires hardcoded `pod-base-url` configuration
+  - Supports any Solid provider (solidcommunity.net, login.inrupt.com, etc.)
 - Questionnaires are now served statically from local files (not session-scoped)
   - Questionnaire endpoint is now public (no authentication required)
   - Questionnaires are loaded at server startup and shared across all sessions

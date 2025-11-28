@@ -20,7 +20,7 @@ The WellData Ephemeral FHIR Service implements the [ephemeral FHIR service conce
 | JWT token parsing (jti, sub, exp) | Implemented |
 | Automatic session cleanup | Implemented |
 | WellData IG profile serving | Implemented |
-| Solid pod integration | Implemented (disabled by default) |
+| Solid pod integration | Implemented (pod URL derived from WebID) |
 | Static Questionnaire serving | Implemented (from local files) |
 | Token signature validation | Not yet implemented |
 
@@ -108,7 +108,7 @@ curl -H "Authorization: Bearer <your-jwt-token>" http://localhost:8080/fhir/Pati
 
 The service extracts the following claims from the JWT:
 - `jti` - Used as session identifier (falls back to token hash if not present)
-- `sub` - Subject/user identifier (logged for debugging)
+- `sub` - WebID (e.g., `https://roland.solidcommunity.net/profile/card#me`) used to derive the Solid pod URL
 - `exp` - Expiry time (session is cleaned up after this time)
 
 ## API Examples
