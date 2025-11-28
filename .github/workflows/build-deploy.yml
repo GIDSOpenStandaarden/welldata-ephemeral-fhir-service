@@ -1,0 +1,190 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to Kubernetes'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  FHIR_IMAGE_NAME: ${{ github.repository }}
+  DEMO_IMAGE_NAME: ${{ github.repository }}-demo-client
+
+jobs:
+  build-fhir-server:
+    name: Build FHIR Server
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: ./mvnw -B package -DskipTests
+
+      - name: Run tests
+        run: ./mvnw -B test
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.FHIR_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-demo-client:
+    name: Build Demo Client
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.DEMO_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./demo-client
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [build-fhir-server, build-demo-client]
+    if: |
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy == 'true')
+
+    permissions:
+      contents: read
+
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Determine image tag
+        id: image-tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install welldata-ephemeral-fhir ./chart/welldata-ephemeral-fhir-service \
+            --namespace ${{ vars.KUBERNETES_NAMESPACE || 'default' }} \
+            --create-namespace \
+            --set fhirServer.image.repository=${{ env.REGISTRY }}/${{ env.FHIR_IMAGE_NAME }} \
+            --set fhirServer.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --set demoClient.image.repository=${{ env.REGISTRY }}/${{ env.DEMO_IMAGE_NAME }} \
+            --set demoClient.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --set demoClient.defaultSolidProvider=${{ vars.DEFAULT_SOLID_PROVIDER || 'https://solidcommunity.net' }} \
+            --set demoClient.ingress.enabled=${{ vars.INGRESS_ENABLED || 'false' }} \
+            --set demoClient.ingress.className=${{ vars.INGRESS_CLASS || 'nginx' }} \
+            --set demoClient.ingress.hosts[0].host=${{ vars.APP_HOSTNAME || 'welldata.example.com' }} \
+            --set demoClient.ingress.hosts[0].paths[0].path=/ \
+            --set demoClient.ingress.hosts[0].paths[0].pathType=Prefix \
+            --wait \
+            --timeout 5m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/welldata-ephemeral-fhir-fhir -n ${{ vars.KUBERNETES_NAMESPACE || 'default' }}
+          kubectl rollout status deployment/welldata-ephemeral-fhir-demo -n ${{ vars.KUBERNETES_NAMESPACE || 'default' }}

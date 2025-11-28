@@ -238,6 +238,32 @@ src/main/java/nl/gidsopenstandaarden/welldata/fhir/
     └── SessionManager.java             # Session lifecycle management
 ```
 
+## CI/CD
+
+This project includes GitHub Actions workflows for continuous integration and deployment.
+
+### Automated Builds
+
+On every push to `main`/`master` or on tags starting with `v`:
+- Builds and tests the FHIR server with Maven
+- Builds Docker images for both FHIR server and demo client
+- Pushes images to GitHub Container Registry (ghcr.io)
+
+### Deployment
+
+Deployment to Kubernetes is triggered automatically on pushes to main or version tags. Configure the following in your GitHub repository:
+
+**Secrets:**
+- `KUBECONFIG` - Base64-encoded kubeconfig file for cluster access
+
+**Variables:**
+- `KUBERNETES_NAMESPACE` - Target namespace (default: `default`)
+- `DEFAULT_SOLID_PROVIDER` - Solid provider URL (default: `https://solidcommunity.net`)
+- `INGRESS_ENABLED` - Enable ingress (default: `false`)
+- `INGRESS_CLASS` - Ingress class name (default: `nginx`)
+- `APP_HOSTNAME` - Hostname for ingress (default: `welldata.example.com`)
+- `APP_URL` - Full URL for environment link
+
 ## Kubernetes Deployment
 
 A Helm chart is provided for deploying to Kubernetes clusters.

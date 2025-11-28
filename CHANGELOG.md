@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- GitHub Actions workflow for CI/CD (`.github/workflows/build-deploy.yml`)
+  - Builds and tests FHIR server with Maven
+  - Builds Docker images for FHIR server and demo client
+  - Pushes images to GitHub Container Registry (ghcr.io)
+  - Deploys to Kubernetes using Helm on push to main or version tags
+  - Configurable via repository secrets and variables
 - Helm chart for Kubernetes deployment (`chart/welldata-ephemeral-fhir-service/`)
   - FHIR server and demo client deployments
   - Configurable Solid provider URL via environment variable
