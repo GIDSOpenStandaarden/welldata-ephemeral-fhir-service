@@ -1,6 +1,27 @@
-version: '3.8'
-
 services:
+  demo-client:
+    image: node:20-alpine
+    container_name: welldata-demo-client
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - BROWSER=none
+    volumes:
+      - ./demo-client:/app
+      - demo-node-modules:/app/node_modules
+    networks:
+      - welldata-network
+    develop:
+      watch:
+        - action: sync
+          path: ./demo-client/src
+          target: /app/src
+        - action: rebuild
+          path: ./demo-client/package.json
+
   welldata-fhir:
     build: .
     image: gidsopenstandaarden/welldata-ephemeral-fhir-service:latest
@@ -10,6 +31,10 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - JAVA_OPTS=-Xmx512m -Xms256m
+      - WELLDATA_SOLID_POD_BASE_URL=http://solid-pod:3000
+    depends_on:
+      solid-pod:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/fhir/metadata"]
       interval: 30s
@@ -17,3 +42,44 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
+    networks:
+      - welldata-network
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+        - action: rebuild
+          path: ./pom.xml
+
+  solid-pod:
+    image: node:20-alpine
+    container_name: welldata-solid-pod
+    working_dir: /app
+    command: >
+      sh -c "npm install -g @solid/community-server@7 &&
+             community-solid-server -c @css:config/default.json -f /data -b http://localhost:3000/"
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - solid-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - welldata-network
+
+networks:
+  welldata-network:
+    driver: bridge
+
+volumes:
+  solid-data:
+    driver: local
+  demo-node-modules:
+    driver: local

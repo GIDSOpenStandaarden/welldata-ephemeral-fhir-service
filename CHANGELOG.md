@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated WellData Implementation Guide package to v0.1.1
+- Demo client now uses health-check-1-0 questionnaire instead of zipster
+- Added Docker Compose `develop.watch` for automatic rebuild on file changes
+
+### Added
+
+- Demo client: React application for Solid OIDC authentication and FHIR interactions
+  - Solid OIDC authentication with dynamic client registration and PKCE
+  - Questionnaire rendering with support for grouped items and multiple answer types
+  - QuestionnaireResponse submission with linked Observation creation
+  - History view for submitted responses and observations
+
 ## [0.1.0] - 2025-11-28
 
 ### Added

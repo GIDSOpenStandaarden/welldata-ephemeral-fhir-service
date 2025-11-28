@@ -13,6 +13,7 @@ import ca.uhn.fhir.rest.server.exceptions.ResourceGoneException;
 import ca.uhn.fhir.rest.server.exceptions.ResourceNotFoundException;
 import nl.gidsopenstandaarden.welldata.fhir.context.AccessTokenContext;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.*;
@@ -39,12 +40,14 @@ public class WellDataResourceProvider<T extends IBaseResource> implements IResou
     private final FhirContext fhirContext;
     private final String resourceName;
     private final SessionManager sessionManager;
+    private final SolidPodClient solidPodClient;
 
-    public WellDataResourceProvider(FhirContext fhirContext, Class<T> resourceType, SessionManager sessionManager) {
+    public WellDataResourceProvider(FhirContext fhirContext, Class<T> resourceType, SessionManager sessionManager, SolidPodClient solidPodClient) {
         this.fhirContext = fhirContext;
         this.resourceType = resourceType;
         this.resourceName = fhirContext.getResourceType(resourceType);
         this.sessionManager = sessionManager;
+        this.solidPodClient = solidPodClient;
     }
 
     @Override
@@ -151,6 +154,9 @@ public class WellDataResourceProvider<T extends IBaseResource> implements IResou
 
         session.storeResource(resourceName, id, 1L, cloned);
 
+        // Persist to Solid pod (write-through)
+        persistToPod(cloned);
+
         LOG.info("Created {}/{} in session {}", resourceName, id, session.getSessionKey());
 
         return new MethodOutcome()
@@ -189,6 +195,9 @@ public class WellDataResourceProvider<T extends IBaseResource> implements IResou
 
         session.storeResource(resourceName, idPart, newVersion, cloned);
 
+        // Persist to Solid pod (write-through)
+        persistToPod(cloned);
+
         LOG.info("Updated {}/{} to version {} in session {}", resourceName, idPart, newVersion, session.getSessionKey());
 
         return new MethodOutcome()
@@ -206,6 +215,9 @@ public class WellDataResourceProvider<T extends IBaseResource> implements IResou
         }
 
         session.deleteResource(resourceName, idPart);
+
+        // Delete from Solid pod
+        deleteFromPod(idPart);
 
         LOG.info("Deleted {}/{} in session {}", resourceName, idPart, session.getSessionKey());
 
@@ -283,5 +295,54 @@ public class WellDataResourceProvider<T extends IBaseResource> implements IResou
             session.getDeletedIds(resourceName).clear();
             LOG.info("Cleared all {} resources in session {}", resourceName, session.getSessionKey());
         }
+    }
+
+    /**
+     * Persist a resource to the Solid pod (write-through).
+     */
+    @SuppressWarnings("unchecked")
+    private void persistToPod(T resource) {
+        if (solidPodClient != null && solidPodClient.isEnabled()) {
+            AccessTokenContext context = AccessTokenContext.get();
+            if (context != null && resource instanceof DomainResource dr) {
+                try {
+                    solidPodClient.saveResource(dr, context.getToken());
+                } catch (Exception e) {
+                    LOG.error("Failed to persist resource to Solid pod: {}", e.getMessage(), e);
+                    // Continue - in-memory update was successful
+                }
+            }
+        }
+    }
+
+    /**
+     * Delete a resource from the Solid pod.
+     */
+    private void deleteFromPod(String resourceId) {
+        if (solidPodClient != null && solidPodClient.isEnabled()) {
+            AccessTokenContext context = AccessTokenContext.get();
+            if (context != null) {
+                try {
+                    solidPodClient.deleteResource(resourceName, resourceId, context.getToken());
+                } catch (Exception e) {
+                    LOG.error("Failed to delete resource from Solid pod: {}", e.getMessage(), e);
+                    // Continue - in-memory delete was successful
+                }
+            }
+        }
+    }
+
+    /**
+     * Get the SolidPodClient for loading resources.
+     */
+    protected SolidPodClient getSolidPodClient() {
+        return solidPodClient;
+    }
+
+    /**
+     * Get the resource name (type).
+     */
+    protected String getResourceName() {
+        return resourceName;
     }
 }

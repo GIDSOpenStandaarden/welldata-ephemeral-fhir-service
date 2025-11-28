@@ -8,8 +8,13 @@ spring:
 welldata:
   testdata:
     path: classpath:testdata
+    enabled: true  # Set to false when using Solid pod for data storage
   ig:
-    url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.0/welldata-0.1.0.tgz
+    url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.1/welldata-0.1.1.tgz
+  solid:
+    enabled: false  # Set to true to enable Solid pod integration
+    pod-base-url: http://localhost:3000
+    fhir-container-path: /weare/fhir
 
 logging:
   level:

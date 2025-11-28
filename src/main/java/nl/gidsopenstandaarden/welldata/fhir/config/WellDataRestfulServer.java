@@ -9,6 +9,7 @@ import nl.gidsopenstandaarden.welldata.fhir.provider.*;
 import nl.gidsopenstandaarden.welldata.fhir.service.IgPackageLoader;
 import nl.gidsopenstandaarden.welldata.fhir.service.JsonDataLoader;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -27,6 +28,7 @@ public class WellDataRestfulServer extends RestfulServer {
     private final JsonDataLoader jsonDataLoader;
     private final IgPackageLoader igPackageLoader;
     private final SessionManager sessionManager;
+    private final SolidPodClient solidPodClient;
 
     // Resource providers
     private final PatientResourceProvider patientProvider;
@@ -36,17 +38,19 @@ public class WellDataRestfulServer extends RestfulServer {
     private final StructureDefinitionResourceProvider structureDefinitionProvider;
     private final ImplementationGuideResourceProvider implementationGuideProvider;
 
-    public WellDataRestfulServer(JsonDataLoader jsonDataLoader, IgPackageLoader igPackageLoader, SessionManager sessionManager) {
+    public WellDataRestfulServer(JsonDataLoader jsonDataLoader, IgPackageLoader igPackageLoader,
+                                  SessionManager sessionManager, SolidPodClient solidPodClient) {
         super(FhirContext.forR4());
         this.jsonDataLoader = jsonDataLoader;
         this.igPackageLoader = igPackageLoader;
         this.sessionManager = sessionManager;
+        this.solidPodClient = solidPodClient;
 
         FhirContext ctx = getFhirContext();
-        this.patientProvider = new PatientResourceProvider(ctx, sessionManager);
-        this.observationProvider = new ObservationResourceProvider(ctx, sessionManager);
-        this.questionnaireProvider = new QuestionnaireResourceProvider(ctx, sessionManager);
-        this.questionnaireResponseProvider = new QuestionnaireResponseResourceProvider(ctx, sessionManager);
+        this.patientProvider = new PatientResourceProvider(ctx, sessionManager, solidPodClient);
+        this.observationProvider = new ObservationResourceProvider(ctx, sessionManager, solidPodClient);
+        this.questionnaireProvider = new QuestionnaireResourceProvider(ctx, sessionManager, solidPodClient);
+        this.questionnaireResponseProvider = new QuestionnaireResponseResourceProvider(ctx, sessionManager, solidPodClient);
         this.structureDefinitionProvider = new StructureDefinitionResourceProvider();
         this.implementationGuideProvider = new ImplementationGuideResourceProvider();
     }
@@ -95,10 +99,48 @@ public class WellDataRestfulServer extends RestfulServer {
     /**
      * Load initial data into a specific session.
      * Called by the interceptor when a new session is created.
+     *
+     * If Solid pod integration is enabled, data is loaded from the pod.
+     * Otherwise, test data is loaded from the classpath (if enabled).
      */
     public void loadSessionData(SessionManager.Session session) {
-        jsonDataLoader.loadResources(session, patientProvider, observationProvider,
-                                     questionnaireProvider, questionnaireResponseProvider);
+        if (solidPodClient.isEnabled()) {
+            // Load data from Solid pod
+            loadFromSolidPod(session);
+        } else {
+            // Load test data from classpath
+            jsonDataLoader.loadResources(session, patientProvider, observationProvider,
+                                         questionnaireProvider, questionnaireResponseProvider);
+        }
+    }
+
+    /**
+     * Load resources from the Solid pod into the session.
+     */
+    private void loadFromSolidPod(SessionManager.Session session) {
+        nl.gidsopenstandaarden.welldata.fhir.context.AccessTokenContext context =
+            nl.gidsopenstandaarden.welldata.fhir.context.AccessTokenContext.get();
+
+        if (context == null) {
+            return;
+        }
+
+        String accessToken = context.getToken();
+
+        // Load each resource type from the pod
+        solidPodClient.loadResources("Patient", accessToken, org.hl7.fhir.r4.model.Patient.class)
+            .forEach(p -> patientProvider.store(p, session));
+
+        solidPodClient.loadResources("Observation", accessToken, org.hl7.fhir.r4.model.Observation.class)
+            .forEach(o -> observationProvider.store(o, session));
+
+        solidPodClient.loadResources("Questionnaire", accessToken, org.hl7.fhir.r4.model.Questionnaire.class)
+            .forEach(q -> questionnaireProvider.store(q, session));
+
+        solidPodClient.loadResources("QuestionnaireResponse", accessToken, org.hl7.fhir.r4.model.QuestionnaireResponse.class)
+            .forEach(qr -> questionnaireResponseProvider.store(qr, session));
+
+        session.setDataLoaded(true);
     }
 
     // Getters for providers (useful for testing and management)
@@ -124,5 +166,9 @@ public class WellDataRestfulServer extends RestfulServer {
 
     public JsonDataLoader getJsonDataLoader() {
         return jsonDataLoader;
+    }
+
+    public SolidPodClient getSolidPodClient() {
+        return solidPodClient;
     }
 }

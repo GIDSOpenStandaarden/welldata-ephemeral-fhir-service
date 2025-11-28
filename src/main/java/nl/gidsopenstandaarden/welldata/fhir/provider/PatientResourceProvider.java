@@ -10,6 +10,7 @@ import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.SimpleBundleProvider;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
 import org.hl7.fhir.r4.model.Patient;
 
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class PatientResourceProvider extends WellDataResourceProvider<Patient> {
 
-    public PatientResourceProvider(FhirContext fhirContext, SessionManager sessionManager) {
-        super(fhirContext, Patient.class, sessionManager);
+    public PatientResourceProvider(FhirContext fhirContext, SessionManager sessionManager, SolidPodClient solidPodClient) {
+        super(fhirContext, Patient.class, sessionManager, solidPodClient);
     }
 
     @Search

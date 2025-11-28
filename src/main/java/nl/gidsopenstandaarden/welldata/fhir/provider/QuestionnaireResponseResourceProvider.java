@@ -10,6 +10,7 @@ import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.SimpleBundleProvider;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
 import org.hl7.fhir.r4.model.QuestionnaireResponse;
 
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class QuestionnaireResponseResourceProvider extends WellDataResourceProvider<QuestionnaireResponse> {
 
-    public QuestionnaireResponseResourceProvider(FhirContext fhirContext, SessionManager sessionManager) {
-        super(fhirContext, QuestionnaireResponse.class, sessionManager);
+    public QuestionnaireResponseResourceProvider(FhirContext fhirContext, SessionManager sessionManager, SolidPodClient solidPodClient) {
+        super(fhirContext, QuestionnaireResponse.class, sessionManager, solidPodClient);
     }
 
     @Search

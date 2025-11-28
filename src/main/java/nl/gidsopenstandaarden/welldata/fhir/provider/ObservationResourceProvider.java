@@ -10,6 +10,7 @@ import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.TokenParam;
 import ca.uhn.fhir.rest.server.SimpleBundleProvider;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
 import org.hl7.fhir.r4.model.Observation;
 
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.stream.Collectors;
  */
 public class ObservationResourceProvider extends WellDataResourceProvider<Observation> {
 
-    public ObservationResourceProvider(FhirContext fhirContext, SessionManager sessionManager) {
-        super(fhirContext, Observation.class, sessionManager);
+    public ObservationResourceProvider(FhirContext fhirContext, SessionManager sessionManager, SolidPodClient solidPodClient) {
+        super(fhirContext, Observation.class, sessionManager, solidPodClient);
     }
 
     @Search
