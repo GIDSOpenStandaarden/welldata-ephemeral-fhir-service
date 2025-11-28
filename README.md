@@ -25,19 +25,51 @@ The WellData Ephemeral FHIR Service implements the [ephemeral FHIR service conce
 
 ## Quick Start
 
-### Using Docker
+### Using Docker Compose (Recommended)
+
+Start all services (FHIR server, Solid pod, and demo client):
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-### Using Maven
+For development with auto-rebuild on file changes:
+
+```bash
+docker compose watch
+```
+
+Services will be available at:
+- **Demo client**: http://localhost:3001
+- **FHIR server**: http://localhost:8080/fhir
+- **Solid pod**: http://localhost:3000
+
+### Using Maven (FHIR server only)
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
 The FHIR server will be available at http://localhost:8080/fhir
+
+## Demo Client
+
+The demo client is a React application that demonstrates the WellData workflow:
+
+1. **Login with Solid** - Authenticate using Solid OIDC (default: local Solid pod)
+2. **Fill out a health questionnaire** - Answer questions about vitals, wellbeing, lifestyle
+3. **Submit responses** - Creates a QuestionnaireResponse and linked Observations
+4. **View history** - See submitted responses and observations
+
+### Using an External Solid Provider
+
+The demo client supports connecting to external Solid providers instead of the local pod:
+
+1. Click "Use different Solid provider" on the login screen
+2. Enter the URL of your Solid provider (e.g., `https://solidcommunity.net`, `https://login.inrupt.com`)
+3. Click "Login with Solid"
+
+This allows you to use your existing Solid identity with social login providers (Google, etc.) if your Solid provider supports it.
 
 ## Authentication
 
@@ -156,7 +188,7 @@ welldata:
   testdata:
     path: classpath:testdata
   ig:
-    url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.0/welldata-0.1.0.tgz
+    url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.1/welldata-0.1.1.tgz
 ```
 
 ## Development

@@ -1,6 +1,6 @@
 // Solid OIDC Authentication Service
 
-const SOLID_PROVIDER = 'http://localhost:3000';
+const DEFAULT_SOLID_PROVIDER = 'http://localhost:3000';
 const REDIRECT_URI = window.location.origin + '/';
 const CLIENT_NAME = 'WellData Wellness App';
 
@@ -10,6 +10,29 @@ const STORAGE_KEY_STATE = 'welldata_oidc_state';
 const STORAGE_KEY_VERIFIER = 'welldata_oidc_verifier';
 const STORAGE_KEY_TOKEN = 'welldata_oidc_token';
 const STORAGE_KEY_PROCESSED_CODE = 'welldata_processed_code';
+const STORAGE_KEY_PROVIDER = 'welldata_solid_provider';
+
+// Get current Solid provider URL
+export const getSolidProvider = () => {
+  return localStorage.getItem(STORAGE_KEY_PROVIDER) || DEFAULT_SOLID_PROVIDER;
+};
+
+// Set Solid provider URL
+export const setSolidProvider = (url) => {
+  // Normalize URL (remove trailing slash)
+  const normalized = url.replace(/\/+$/, '');
+  localStorage.setItem(STORAGE_KEY_PROVIDER, normalized);
+  // Clear existing client registration when provider changes
+  localStorage.removeItem(STORAGE_KEY_CLIENT);
+};
+
+// Reset to default provider
+export const resetSolidProvider = () => {
+  localStorage.removeItem(STORAGE_KEY_PROVIDER);
+  localStorage.removeItem(STORAGE_KEY_CLIENT);
+};
+
+export const DEFAULT_PROVIDER_URL = DEFAULT_SOLID_PROVIDER;
 
 // Generate random string for PKCE and state
 const generateRandomString = (length) => {
@@ -66,8 +89,9 @@ const registerClient = async (forceNew = false) => {
 
   localStorage.removeItem(STORAGE_KEY_CLIENT);
 
-  console.log('Registering new OIDC client...');
-  const response = await fetch(`${SOLID_PROVIDER}/.oidc/reg`, {
+  const provider = getSolidProvider();
+  console.log('Registering new OIDC client with provider:', provider);
+  const response = await fetch(`${provider}/.oidc/reg`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -112,7 +136,8 @@ const exchangeCodeForTokens = async (code) => {
     code_verifier: verifier
   });
 
-  const response = await fetch(`${SOLID_PROVIDER}/.oidc/token`, {
+  const provider = getSolidProvider();
+  const response = await fetch(`${provider}/.oidc/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString()
@@ -148,7 +173,8 @@ export const login = async () => {
   localStorage.setItem(STORAGE_KEY_STATE, state);
   localStorage.setItem(STORAGE_KEY_VERIFIER, verifier);
 
-  const authUrl = new URL(`${SOLID_PROVIDER}/.oidc/auth`);
+  const provider = getSolidProvider();
+  const authUrl = new URL(`${provider}/.oidc/auth`);
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('client_id', client.client_id);
   authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
@@ -241,4 +267,3 @@ export const clearAuthState = () => {
   sessionStorage.removeItem(STORAGE_KEY_PROCESSED_CODE);
 };
 
-export const SOLID_PROVIDER_URL = SOLID_PROVIDER;

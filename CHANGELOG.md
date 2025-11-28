@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Questionnaire rendering with support for grouped items and multiple answer types
   - QuestionnaireResponse submission with linked Observation creation
   - History view for submitted responses and observations
+  - Configurable Solid provider URL (supports external providers like solidcommunity.net)
 
 ## [0.1.0] - 2025-11-28
 

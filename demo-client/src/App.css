@@ -81,6 +81,61 @@
   line-height: 1.5;
 }
 
+.toggle-advanced {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 16px;
+  text-decoration: underline;
+}
+
+.toggle-advanced:hover {
+  color: #764ba2;
+}
+
+.advanced-options {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.advanced-options label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.advanced-options .login-input {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.reset-button {
+  background: none;
+  border: 1px solid #ddd;
+  color: #666;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.reset-button:hover {
+  background: #f0f0f0;
+}
+
+.provider-examples {
+  font-size: 12px;
+  color: #999;
+  margin: 8px 0 0 0;
+}
+
 /* Header */
 .app-header {
   background: rgba(255, 255, 255, 0.95);
