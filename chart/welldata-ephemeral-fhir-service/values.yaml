@@ -43,6 +43,10 @@ fhirServer:
   # Java options
   javaOpts: "-Xmx512m -Xms256m"
 
+  # Solid pod integration (stores FHIR resources in user's Solid pod)
+  solid:
+    enabled: true
+
 # Demo Client configuration
 demoClient:
   enabled: true

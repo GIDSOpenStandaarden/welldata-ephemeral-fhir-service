@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Solid pod integration now enabled by default in Helm chart (`fhirServer.solid.enabled: true`)
 - Updated WellData Implementation Guide package to v0.1.1
 - Demo client now uses health-check-1-0 questionnaire instead of zipster
 - Added Docker Compose `develop.watch` for automatic rebuild on file changes

@@ -40,6 +40,8 @@ spec:
               value: {{ .Values.fhirServer.javaOpts | quote }}
             - name: WELLDATA_IG_URL
               value: {{ .Values.fhirServer.igPackageUrl | quote }}
+            - name: WELLDATA_SOLID_ENABLED
+              value: {{ .Values.fhirServer.solid.enabled | quote }}
           livenessProbe:
             httpGet:
               path: /fhir/metadata
