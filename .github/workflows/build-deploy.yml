@@ -188,9 +188,12 @@ jobs:
             --set demoClient.defaultSolidProvider=${{ vars.DEFAULT_SOLID_PROVIDER || 'https://solidcommunity.net' }} \
             --set demoClient.ingress.enabled=${{ vars.INGRESS_ENABLED || 'false' }} \
             --set demoClient.ingress.className=${{ vars.INGRESS_CLASS || 'nginx' }} \
+            --set 'demoClient.ingress.annotations.kubernetes\.io/tls-acme=true' \
             --set demoClient.ingress.hosts[0].host=${{ vars.APP_HOSTNAME || 'welldata.example.com' }} \
             --set demoClient.ingress.hosts[0].paths[0].path=/ \
             --set demoClient.ingress.hosts[0].paths[0].pathType=Prefix \
+            --set demoClient.ingress.tls[0].secretName=${{ vars.TLS_SECRET_NAME || 'welldata-tls' }} \
+            --set demoClient.ingress.tls[0].hosts[0]=${{ vars.APP_HOSTNAME || 'welldata.example.com' }} \
             --wait \
             --timeout 5m
 
