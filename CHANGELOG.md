@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Questionnaires are now served statically from local files (not session-scoped)
+  - Questionnaire endpoint is now public (no authentication required)
+  - Questionnaires are loaded at server startup and shared across all sessions
+  - This aligns with the concept that Questionnaires are definitions, not user data
 - Solid pod integration now enabled by default in Helm chart (`fhirServer.solid.enabled: true`)
 - Updated WellData Implementation Guide package to v0.1.1
 - Demo client now uses health-check-1-0 questionnaire instead of zipster

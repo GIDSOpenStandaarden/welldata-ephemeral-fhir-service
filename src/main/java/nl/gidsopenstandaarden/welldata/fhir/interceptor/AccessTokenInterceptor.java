@@ -137,6 +137,12 @@ public class AccessTokenInterceptor {
             return true;
         }
 
+        // Questionnaire is public (shared definitions, not user data)
+        // Note: QuestionnaireResponse is NOT public (it's user data)
+        if (requestURI.contains("/Questionnaire") && !requestURI.contains("/QuestionnaireResponse")) {
+            return true;
+        }
+
         // Swagger/OpenAPI endpoints
         if (requestURI.contains("/swagger-ui") || requestURI.contains("/api-docs")) {
             return true;

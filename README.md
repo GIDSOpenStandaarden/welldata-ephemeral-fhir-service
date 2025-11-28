@@ -21,7 +21,16 @@ The WellData Ephemeral FHIR Service implements the [ephemeral FHIR service conce
 | Automatic session cleanup | Implemented |
 | WellData IG profile serving | Implemented |
 | Solid pod integration | Implemented (disabled by default) |
+| Static Questionnaire serving | Implemented (from local files) |
 | Token signature validation | Not yet implemented |
+
+### Planned Enhancements
+
+The following features are planned for future releases:
+
+- **Questionnaire proxy/federation**: Support proxying Questionnaires from a remote FHIR server instead of or in addition to local files
+- **Configurable Questionnaire sources**: Allow configuration of multiple Questionnaire sources (local, remote, or combined)
+- **Questionnaire caching**: Cache remote Questionnaires with configurable TTL
 
 ## Quick Start
 
@@ -82,12 +91,12 @@ The service requires a JWT Bearer token for accessing patient data endpoints. Th
 - `GET /fhir/metadata` - CapabilityStatement
 - `GET /fhir/StructureDefinition` - WellData profiles
 - `GET /fhir/ImplementationGuide` - Implementation guide metadata
+- `GET /fhir/Questionnaire` - Questionnaires (shared definitions)
 
 ### Protected Endpoints (Bearer token required)
 
 - `/fhir/Patient`
 - `/fhir/Observation`
-- `/fhir/Questionnaire`
 - `/fhir/QuestionnaireResponse`
 
 ### Example with Authentication

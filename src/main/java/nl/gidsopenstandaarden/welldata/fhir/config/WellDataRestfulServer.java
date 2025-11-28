@@ -30,11 +30,13 @@ public class WellDataRestfulServer extends RestfulServer {
     private final SessionManager sessionManager;
     private final SolidPodClient solidPodClient;
 
-    // Resource providers
+    // Session-scoped resource providers (require authentication)
     private final PatientResourceProvider patientProvider;
     private final ObservationResourceProvider observationProvider;
-    private final QuestionnaireResourceProvider questionnaireProvider;
     private final QuestionnaireResponseResourceProvider questionnaireResponseProvider;
+
+    // Static resource providers (no authentication required)
+    private final StaticQuestionnaireResourceProvider questionnaireProvider;
     private final StructureDefinitionResourceProvider structureDefinitionProvider;
     private final ImplementationGuideResourceProvider implementationGuideProvider;
 
@@ -47,10 +49,13 @@ public class WellDataRestfulServer extends RestfulServer {
         this.solidPodClient = solidPodClient;
 
         FhirContext ctx = getFhirContext();
+        // Session-scoped providers
         this.patientProvider = new PatientResourceProvider(ctx, sessionManager, solidPodClient);
         this.observationProvider = new ObservationResourceProvider(ctx, sessionManager, solidPodClient);
-        this.questionnaireProvider = new QuestionnaireResourceProvider(ctx, sessionManager, solidPodClient);
         this.questionnaireResponseProvider = new QuestionnaireResponseResourceProvider(ctx, sessionManager, solidPodClient);
+
+        // Static providers (shared across all sessions)
+        this.questionnaireProvider = new StaticQuestionnaireResourceProvider();
         this.structureDefinitionProvider = new StructureDefinitionResourceProvider();
         this.implementationGuideProvider = new ImplementationGuideResourceProvider();
     }
@@ -80,6 +85,9 @@ public class WellDataRestfulServer extends RestfulServer {
 
         // Load IG package (profiles and implementation guides) - these are shared across sessions
         loadIgPackage();
+
+        // Load static Questionnaires from local files - these are shared across sessions
+        loadQuestionnaires();
     }
 
     private CorsInterceptor buildCorsInterceptor() {
@@ -96,12 +104,18 @@ public class WellDataRestfulServer extends RestfulServer {
         igPackageLoader.loadIgPackage(structureDefinitionProvider, implementationGuideProvider);
     }
 
+    private void loadQuestionnaires() {
+        jsonDataLoader.loadQuestionnaires(questionnaireProvider);
+    }
+
     /**
      * Load initial data into a specific session.
      * Called by the interceptor when a new session is created.
      *
      * If Solid pod integration is enabled, data is loaded from the pod.
      * Otherwise, test data is loaded from the classpath (if enabled).
+     *
+     * Note: Questionnaires are loaded statically at startup and are not session-scoped.
      */
     public void loadSessionData(SessionManager.Session session) {
         if (solidPodClient.isEnabled()) {
@@ -109,13 +123,14 @@ public class WellDataRestfulServer extends RestfulServer {
             loadFromSolidPod(session);
         } else {
             // Load test data from classpath
-            jsonDataLoader.loadResources(session, patientProvider, observationProvider,
-                                         questionnaireProvider, questionnaireResponseProvider);
+            jsonDataLoader.loadSessionResources(session, patientProvider, observationProvider,
+                                                questionnaireResponseProvider);
         }
     }
 
     /**
      * Load resources from the Solid pod into the session.
+     * Note: Questionnaires are loaded statically at startup and are not session-scoped.
      */
     private void loadFromSolidPod(SessionManager.Session session) {
         nl.gidsopenstandaarden.welldata.fhir.context.AccessTokenContext context =
@@ -127,15 +142,12 @@ public class WellDataRestfulServer extends RestfulServer {
 
         String accessToken = context.getToken();
 
-        // Load each resource type from the pod
+        // Load each resource type from the pod (Questionnaires are static, not per-session)
         solidPodClient.loadResources("Patient", accessToken, org.hl7.fhir.r4.model.Patient.class)
             .forEach(p -> patientProvider.store(p, session));
 
         solidPodClient.loadResources("Observation", accessToken, org.hl7.fhir.r4.model.Observation.class)
             .forEach(o -> observationProvider.store(o, session));
-
-        solidPodClient.loadResources("Questionnaire", accessToken, org.hl7.fhir.r4.model.Questionnaire.class)
-            .forEach(q -> questionnaireProvider.store(q, session));
 
         solidPodClient.loadResources("QuestionnaireResponse", accessToken, org.hl7.fhir.r4.model.QuestionnaireResponse.class)
             .forEach(qr -> questionnaireResponseProvider.store(qr, session));
@@ -152,7 +164,7 @@ public class WellDataRestfulServer extends RestfulServer {
         return observationProvider;
     }
 
-    public QuestionnaireResourceProvider getQuestionnaireProvider() {
+    public StaticQuestionnaireResourceProvider getQuestionnaireProvider() {
         return questionnaireProvider;
     }
 

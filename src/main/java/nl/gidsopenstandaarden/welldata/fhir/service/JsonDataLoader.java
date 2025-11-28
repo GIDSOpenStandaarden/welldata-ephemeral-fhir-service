@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 /**
- * Service to load FHIR resources from JSON files into a session.
+ * Service to load FHIR resources from JSON files.
  *
  * This loader reads JSON files from the classpath and converts them to FHIR resources
  * using the HAPI FHIR JSON parser.
@@ -38,13 +39,22 @@ public class JsonDataLoader {
     }
 
     /**
-     * Load all resources from JSON files into the providers for a specific session.
+     * Load static Questionnaires from JSON files (shared across all sessions).
      */
-    public void loadResources(
+    public void loadQuestionnaires(StaticQuestionnaireResourceProvider questionnaireProvider) {
+        LOG.info("Loading static Questionnaires...");
+        int count = loadStaticResources("Questionnaire", Questionnaire.class, questionnaireProvider::store);
+        LOG.info("Loaded {} static Questionnaires", count);
+    }
+
+    /**
+     * Load session-scoped resources from JSON files into the providers for a specific session.
+     * Note: Questionnaires are loaded statically at startup and are not included here.
+     */
+    public void loadSessionResources(
             SessionManager.Session session,
             PatientResourceProvider patientProvider,
             ObservationResourceProvider observationProvider,
-            QuestionnaireResourceProvider questionnaireProvider,
             QuestionnaireResponseResourceProvider questionnaireResponseProvider) {
 
         if (session.isDataLoaded()) {
@@ -56,13 +66,46 @@ public class JsonDataLoader {
 
         int patientCount = loadResourcesOfType("Patient", Patient.class, patientProvider, session);
         int observationCount = loadResourcesOfType("Observation", Observation.class, observationProvider, session);
-        int questionnaireCount = loadResourcesOfType("Questionnaire", Questionnaire.class, questionnaireProvider, session);
         int qrCount = loadResourcesOfType("QuestionnaireResponse", QuestionnaireResponse.class, questionnaireResponseProvider, session);
 
         session.setDataLoaded(true);
 
-        LOG.info("Loaded {} Patients, {} Observations, {} Questionnaires, {} QuestionnaireResponses for session {}",
-                patientCount, observationCount, questionnaireCount, qrCount, session.getSessionKey());
+        LOG.info("Loaded {} Patients, {} Observations, {} QuestionnaireResponses for session {}",
+                patientCount, observationCount, qrCount, session.getSessionKey());
+    }
+
+    /**
+     * Load static resources (not session-scoped) using a consumer.
+     */
+    private <T extends org.hl7.fhir.instance.model.api.IBaseResource> int loadStaticResources(
+            String resourceType,
+            Class<T> resourceClass,
+            Consumer<T> storeFunction) {
+
+        int count = 0;
+        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
+        try {
+            String pattern = "classpath:testdata/" + resourceType + "/*.json";
+            Resource[] resources = resolver.getResources(pattern);
+
+            for (Resource resource : resources) {
+                try {
+                    T fhirResource = loadResource(resource, resourceClass);
+                    if (fhirResource != null) {
+                        storeFunction.accept(fhirResource);
+                        count++;
+                        LOG.debug("Loaded static {} from {}", resourceType, resource.getFilename());
+                    }
+                } catch (Exception e) {
+                    LOG.warn("Failed to load {} from {}: {}", resourceType, resource.getFilename(), e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            LOG.warn("Failed to find {} resources: {}", resourceType, e.getMessage());
+        }
+
+        return count;
     }
 
     private <T extends org.hl7.fhir.instance.model.api.IBaseResource> int loadResourcesOfType(
