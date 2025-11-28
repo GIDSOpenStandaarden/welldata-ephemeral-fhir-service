@@ -20,7 +20,7 @@ The WellData Ephemeral FHIR Service implements the [ephemeral FHIR service conce
 | JWT token parsing (jti, sub, exp) | Implemented |
 | Automatic session cleanup | Implemented |
 | WellData IG profile serving | Implemented |
-| Solid pod integration | Not yet implemented |
+| Solid pod integration | Implemented (disabled by default) |
 | Token signature validation | Not yet implemented |
 
 ## Quick Start
