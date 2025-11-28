@@ -1,0 +1,42 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0] - 2025-11-28
+
+### Added
+
+- Initial implementation of the WellData Ephemeral FHIR Service
+- In-memory FHIR R4 resource storage with session isolation
+- Support for Patient, Observation, Questionnaire, and QuestionnaireResponse resources
+- Session-scoped data storage tied to JWT access tokens
+  - Sessions identified by JWT `jti` claim (or token hash as fallback)
+  - Automatic session cleanup when JWT expires
+  - Data loaded on-demand per session
+- JWT access token authentication via Bearer token in Authorization header
+  - Token decoding (without signature validation) for session scoping
+  - Public endpoints (metadata, StructureDefinition, ImplementationGuide) accessible without authentication
+- WellData Implementation Guide package loading from GitHub releases
+  - Automatic download and parsing of IG `.tgz` package
+  - StructureDefinition and ImplementationGuide resources served via FHIR API
+- FHIR search parameters for all resource types
+  - Patient: identifier, name, family, given, birthdate
+  - Observation: subject, code, date, status, category
+  - Questionnaire: identifier, name, title, status
+  - QuestionnaireResponse: subject, questionnaire, status, authored, author
+- Docker support with multi-stage build
+- CORS support for cross-origin requests
+- Response highlighting for browser-based API exploration
+
+### Technical Stack
+
+- Java 21
+- Spring Boot 3.3.5
+- HAPI FHIR 7.4.0
+- Apache Jena 4.10.0 (for RDF/TTL support)
+- Auth0 java-jwt 4.4.0 (for JWT decoding)

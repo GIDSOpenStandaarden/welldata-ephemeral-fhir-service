@@ -1,0 +1,128 @@
+package nl.gidsopenstandaarden.welldata.fhir.config;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.server.RestfulServer;
+import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
+import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
+import nl.gidsopenstandaarden.welldata.fhir.interceptor.AccessTokenInterceptor;
+import nl.gidsopenstandaarden.welldata.fhir.provider.*;
+import nl.gidsopenstandaarden.welldata.fhir.service.IgPackageLoader;
+import nl.gidsopenstandaarden.welldata.fhir.service.JsonDataLoader;
+import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
+import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsConfiguration;
+
+import jakarta.servlet.ServletException;
+import java.util.Arrays;
+
+/**
+ * WellData FHIR RESTful Server configuration.
+ *
+ * This server provides an in-memory FHIR R4 API for WellData resources.
+ * Resources are scoped per access token session and loaded on-demand.
+ */
+@Component
+public class WellDataRestfulServer extends RestfulServer {
+
+    private final JsonDataLoader jsonDataLoader;
+    private final IgPackageLoader igPackageLoader;
+    private final SessionManager sessionManager;
+
+    // Resource providers
+    private final PatientResourceProvider patientProvider;
+    private final ObservationResourceProvider observationProvider;
+    private final QuestionnaireResourceProvider questionnaireProvider;
+    private final QuestionnaireResponseResourceProvider questionnaireResponseProvider;
+    private final StructureDefinitionResourceProvider structureDefinitionProvider;
+    private final ImplementationGuideResourceProvider implementationGuideProvider;
+
+    public WellDataRestfulServer(JsonDataLoader jsonDataLoader, IgPackageLoader igPackageLoader, SessionManager sessionManager) {
+        super(FhirContext.forR4());
+        this.jsonDataLoader = jsonDataLoader;
+        this.igPackageLoader = igPackageLoader;
+        this.sessionManager = sessionManager;
+
+        FhirContext ctx = getFhirContext();
+        this.patientProvider = new PatientResourceProvider(ctx, sessionManager);
+        this.observationProvider = new ObservationResourceProvider(ctx, sessionManager);
+        this.questionnaireProvider = new QuestionnaireResourceProvider(ctx, sessionManager);
+        this.questionnaireResponseProvider = new QuestionnaireResponseResourceProvider(ctx, sessionManager);
+        this.structureDefinitionProvider = new StructureDefinitionResourceProvider();
+        this.implementationGuideProvider = new ImplementationGuideResourceProvider();
+    }
+
+    @Override
+    protected void initialize() throws ServletException {
+        // Register resource providers
+        registerProvider(patientProvider);
+        registerProvider(observationProvider);
+        registerProvider(questionnaireProvider);
+        registerProvider(questionnaireResponseProvider);
+        registerProvider(structureDefinitionProvider);
+        registerProvider(implementationGuideProvider);
+
+        // Add interceptors
+        registerInterceptor(new ResponseHighlighterInterceptor());
+        registerInterceptor(buildCorsInterceptor());
+
+        // Create and configure the access token interceptor
+        AccessTokenInterceptor accessTokenInterceptor = new AccessTokenInterceptor(sessionManager);
+        accessTokenInterceptor.setSessionInitializer(this::loadSessionData);
+        registerInterceptor(accessTokenInterceptor);
+
+        // Set server metadata
+        setServerName("WellData Ephemeral FHIR Server");
+        setServerVersion("0.1.0");
+
+        // Load IG package (profiles and implementation guides) - these are shared across sessions
+        loadIgPackage();
+    }
+
+    private CorsInterceptor buildCorsInterceptor() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedHeader("*");
+        config.addAllowedOrigin("*");
+        config.addExposedHeader("Location");
+        config.addExposedHeader("Content-Location");
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        return new CorsInterceptor(config);
+    }
+
+    private void loadIgPackage() {
+        igPackageLoader.loadIgPackage(structureDefinitionProvider, implementationGuideProvider);
+    }
+
+    /**
+     * Load initial data into a specific session.
+     * Called by the interceptor when a new session is created.
+     */
+    public void loadSessionData(SessionManager.Session session) {
+        jsonDataLoader.loadResources(session, patientProvider, observationProvider,
+                                     questionnaireProvider, questionnaireResponseProvider);
+    }
+
+    // Getters for providers (useful for testing and management)
+    public PatientResourceProvider getPatientProvider() {
+        return patientProvider;
+    }
+
+    public ObservationResourceProvider getObservationProvider() {
+        return observationProvider;
+    }
+
+    public QuestionnaireResourceProvider getQuestionnaireProvider() {
+        return questionnaireProvider;
+    }
+
+    public QuestionnaireResponseResourceProvider getQuestionnaireResponseProvider() {
+        return questionnaireResponseProvider;
+    }
+
+    public SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    public JsonDataLoader getJsonDataLoader() {
+        return jsonDataLoader;
+    }
+}

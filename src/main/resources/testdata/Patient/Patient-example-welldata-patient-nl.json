@@ -1,0 +1,56 @@
+{
+  "resourceType" : "Patient",
+  "id" : "example-welldata-patient-nl",
+  "meta" : {
+    "versionId" : "1",
+    "lastUpdated" : "2025-06-11T10:00:00+02:00",
+    "profile" : ["https://gidsopenstandaarden.github.io/welldata-implementation-guide/StructureDefinition/WellDataPatient"]
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Maria van der Berg — voorbeeld patiënt voor WellData (NL)</p></div>"
+  },
+  "identifier" : [{
+    "system" : "https://well-data.example.org/fhir/Patient",
+    "value" : "example-patient-nl"
+  },
+  {
+    "system" : "http://fhir.nl/fhir/NamingSystem/bsn",
+    "value" : "999992345"
+  }],
+  "name" : [{
+    "use" : "official",
+    "family" : "van der Berg",
+    "given" : ["Maria"]
+  }],
+  "telecom" : [{
+    "system" : "phone",
+    "value" : "+31-6-12345678",
+    "use" : "mobile"
+  },
+  {
+    "system" : "email",
+    "value" : "maria.vanderberg@example.nl",
+    "use" : "home"
+  }],
+  "gender" : "female",
+  "birthDate" : "1990-03-22",
+  "address" : [{
+    "use" : "home",
+    "line" : ["Hoofdstraat 42"],
+    "city" : "Amsterdam",
+    "postalCode" : "1012 AB",
+    "country" : "NL"
+  }],
+  "communication" : [{
+    "language" : {
+      "coding" : [{
+        "system" : "urn:ietf:bcp:47",
+        "code" : "nl-NL"
+      }]
+    }
+  }],
+  "generalPractitioner" : [{
+    "reference" : "Practitioner/prac-2"
+  }]
+}

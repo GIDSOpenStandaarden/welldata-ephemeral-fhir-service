@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: welldata-ephemeral-fhir-service
+
+welldata:
+  testdata:
+    path: classpath:testdata
+  ig:
+    url: https://github.com/GIDSOpenStandaarden/welldata-implementation-guide/releases/download/v0.1.0/welldata-0.1.0.tgz
+
+logging:
+  level:
+    nl.gidsopenstandaarden.welldata: DEBUG
+    ca.uhn.fhir: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
