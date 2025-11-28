@@ -10,6 +10,7 @@ import nl.gidsopenstandaarden.welldata.fhir.service.IgPackageLoader;
 import nl.gidsopenstandaarden.welldata.fhir.service.JsonDataLoader;
 import nl.gidsopenstandaarden.welldata.fhir.service.SessionManager;
 import nl.gidsopenstandaarden.welldata.fhir.service.SolidPodClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -29,6 +30,7 @@ public class WellDataRestfulServer extends RestfulServer {
     private final IgPackageLoader igPackageLoader;
     private final SessionManager sessionManager;
     private final SolidPodClient solidPodClient;
+    private final boolean testdataEnabled;
 
     // Session-scoped resource providers (require authentication)
     private final PatientResourceProvider patientProvider;
@@ -41,12 +43,14 @@ public class WellDataRestfulServer extends RestfulServer {
     private final ImplementationGuideResourceProvider implementationGuideProvider;
 
     public WellDataRestfulServer(JsonDataLoader jsonDataLoader, IgPackageLoader igPackageLoader,
-                                  SessionManager sessionManager, SolidPodClient solidPodClient) {
+                                  SessionManager sessionManager, SolidPodClient solidPodClient,
+                                  @Value("${welldata.testdata.enabled:true}") boolean testdataEnabled) {
         super(FhirContext.forR4());
         this.jsonDataLoader = jsonDataLoader;
         this.igPackageLoader = igPackageLoader;
         this.sessionManager = sessionManager;
         this.solidPodClient = solidPodClient;
+        this.testdataEnabled = testdataEnabled;
 
         FhirContext ctx = getFhirContext();
         // Session-scoped providers
@@ -121,11 +125,12 @@ public class WellDataRestfulServer extends RestfulServer {
         if (solidPodClient.isEnabled()) {
             // Load data from Solid pod
             loadFromSolidPod(session);
-        } else {
+        } else if (testdataEnabled) {
             // Load test data from classpath
             jsonDataLoader.loadSessionResources(session, patientProvider, observationProvider,
                                                 questionnaireResponseProvider);
         }
+        // If neither Solid nor testdata is enabled, session starts empty
     }
 
     /**
