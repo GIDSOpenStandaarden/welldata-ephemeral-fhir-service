@@ -71,6 +71,8 @@ The demo client supports connecting to external Solid providers instead of the l
 
 This allows you to use your existing Solid identity with social login providers (Google, etc.) if your Solid provider supports it.
 
+The demo client uses [Solid-OIDC](https://solid.github.io/solid-oidc/) with a dynamically generated Client ID Document served at `/clientid.jsonld`. This document is automatically configured based on the deployment URL, making it work on any host without configuration changes.
+
 ## Authentication
 
 The service requires a JWT Bearer token for accessing patient data endpoints. The token is used to scope data to a specific session.
