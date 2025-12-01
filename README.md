@@ -219,8 +219,20 @@ welldata:
 ### Run Tests
 
 ```bash
+# Run unit and integration tests (excludes Docker-based E2E tests)
 ./mvnw test
+
+# Run Docker-based E2E tests (requires Docker to be running)
+RUN_DOCKER_TESTS=true ./mvnw test -Dtest=FhirServerE2ETest
+
+# Run all tests including Docker-based E2E tests
+RUN_DOCKER_TESTS=true ./mvnw test
 ```
+
+The test suite includes:
+- **Unit tests**: Test individual components in isolation
+- **Integration tests**: Test the full FHIR API using Spring Boot's embedded server
+- **E2E tests**: Test against a real Docker container (requires `RUN_DOCKER_TESTS=true`)
 
 ### Project Structure
 
