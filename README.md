@@ -234,6 +234,17 @@ The test suite includes:
 - **Integration tests**: Test the full FHIR API using Spring Boot's embedded server
 - **E2E tests**: Test against a real Docker container (requires `RUN_DOCKER_TESTS=true`)
 
+#### Docker Desktop Configuration for E2E Tests
+
+If you encounter "Could not find a valid Docker environment" errors when running Docker-based E2E tests on macOS with Docker Desktop, you need to enable the default Docker socket:
+
+1. Open **Docker Desktop**
+2. Go to **Settings** (gear icon) → **Advanced**
+3. Enable **"Enable default Docker socket (Requires password)"**
+4. Click **Apply & Restart**
+
+This is required because Docker Desktop's enhanced CLI proxy restricts API access by default, which prevents Testcontainers from connecting to the Docker daemon.
+
 ### Project Structure
 
 ```
